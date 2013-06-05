@@ -1,0 +1,6 @@
+\ifx\pdftexversion\undefined
+\usepackage[dvips]{graphicx}
+\else
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsRule{*}{mps}{*}{}
+\fi
