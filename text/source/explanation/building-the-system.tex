@@ -58,16 +58,82 @@
 		
 		След събиране на данни за това, какво харесва един потребител, трябва да се разбере колко сходен е той с другите. Това се прави чрез сравняване на всеки двама човека и изчислението на резултат за сходство. За тази цел съществуват няколко подхода. Два от по-известните са: \ac{PC} и \ac{ED}.
 		
-		\ac{ED} е лесен начин за изчисляване на сходство между двама потребители. Формула \eqref{euclidean-distance} показва процесът за намиране сходността между две приложения, където p и q са оценките на потребителите за тях.
+		\ac{ED} е лесен начин за изчисляване на сходство между двама потребители. Формула \eqref{euclidean-distance} показва процесът за намиране сходността на общи приложения между потребителите \emph{p} и \emph{q}.
 		
 		\begin{equation}\label{euclidean-distance}
 			d(p, q) = \sqrt{\sum\limits_{i=1}^n(q_i - p_i)^2}
 		\end{equation}
 		
-		Така зададена, формулата връща по-високи стойности за оценки, които се различават. Това е неинтуитивно, поради което е заменена с такава, която връща по-високи стойности за приличащи си оценките и резултатът е в интервала \emph{[0, 1]}\cite{Segaran}. Формула \eqref{euclidean-distance-normalized} показва нормализирана версия на уравнението.
+		Така зададена, формулата връща по-високи стойности за оценки, които се различават. Това е неинтуитивно, поради което се заменя връщаща по-високи стойности за приличащи си оценки. Резултатът е в интервала \emph{[0, 1]}\cite{Segaran}. Формула \eqref{euclidean-distance-normalized} показва нормализирана версия на уравнението.
 
 		\begin{equation}\label{euclidean-distance-normalized}
 			d(p, q) = \frac{1}{1 + \sqrt{\sum\limits_{i=1}^n(q_i - p_i)^2}}
 		\end{equation}
+		
+		Алгоритъм ~\ref{algorithm:euclidean-distance} е псевдокод за изчисляване на Евклидово сходство. Резултатът от извикване на тази функция е нормализирана стойност в интервала \emph{[0, 1]}.
+		
+		\vspace{2em}		
+		
+		\begin{algorithm}[H]
+			\label{algorithm:euclidean-distance}
+		  \SetKwFunction{Union}{Union}
+			\KwData{Two users p and q}
+			\KwResult{Euclidean similarity between the users}
+			$As \longleftarrow \Union{p.apps, q.apps} $\;
+			$res \longleftarrow 0$\;
+			\lForEach{app $a$ of the apps $As$}{res += pow(pR[i] - qR[i], 2)}\
+			\Return $\frac{1}{1 + res}$\;
+			\caption{Евклидово сходство между двама потребители}
+		\end{algorithm}
+		
+		\vspace{2em}
+		
+		\ac{ED} предоставя лесен и изчислително лек начин за оценка на сходство между два обекта. Методът има един сериозен недостатък - не взима под предвид, когато някои потребители дават високи или ниски оценки за всички приложения(grade inflation\footnote{\url{http://en.wikipedia.org/wiki/Grade_inflation}}).
+		
+		Описаният проблем се решава от \ac{PC}. Тази метрика е малко по-сложна, защото използва коефициент на сходство. Той показва колко добре две множества от данни може да се поставят на права линия. Формулата е по-сложна, но дава нормализирани резултати. Тя е показана на уравнение ~\eqref{pearson-correlation}
+		
+		\begin{equation}\label{pearson-correlation}
+			r(x, y) = \frac{\sum\nolimits'xy - \frac{\sum\nolimits'x\sum\nolimits'y}{n}}
+			{\sqrt{(\sum\nolimits'x^2 - \frac{(\sum\nolimits'x)^2}{n})(\sum\nolimits'y^2 - \frac{(\sum\nolimits'y)^2}{n})}}
+		\end{equation}
+		
+		Алгоритъм ~\ref{algorithm:pearson-correlation} представя псевдокод за изчисление на \ac{PC}.
+		
+		\vspace{2em}
+
+		\begin{algorithm}[H]
+			\label{algorithm:pearson-correlation}
+			\SetKwFunction{Length}{Length}
+			\SetKwFunction{Sqrt}{Sqrt}
+		  \SetKwFunction{SumSquares}{SumSquares}
+		  \SetKwFunction{Sum}{Sum}
+		  \SetKwFunction{SumProducts}{SumProducts}
+			\KwData{Two users p and q}
+			\KwResult{Pearson correlation of the users}
+			$As \longleftarrow \Union{p.apps, q.apps} $\;
+			$n \longleftarrow \Length{As} $\;
+			$sum1 \longleftarrow \Sum{As, p} $\;
+			$sum2 \longleftarrow \Sum{As, q} $\;
+			$sum1Sq \longleftarrow \SumSquares{As, p} $\;
+			$sum2Sq \longleftarrow \SumSquares{As, q} $\;
+			$sumProd \longleftarrow \SumProducts{As, p, q} $\;
+			$num \longleftarrow sumProd - (sum1 * sum2 / n) $\;
+			$den \longleftarrow \Sqrt((sum1Sq - sum1^2/n)(sum2Sq - sum2^2/n)) $\;
+			\Return $\frac{num}{den}$\;
+			\caption{Коефициент на Пиърсън за сходство между двама потребители}
+		\end{algorithm}
+
+		\vspace{2em}
+		
+		\ac{PC} е лоша метрика за свързаност, когато не съществува свързаност \cite{Babenko}. Известен пример за това е показан на фигура ~\ref{figure:anscombe-quartet}. Примерът горе в ляво дава смислена стойност за свързаността между оценките за приложения. В другите графики, стойността е същата, но значимостта й не е голяма. Средната стойност и стандартното отклонение са еднакви.
+		
+		\begin{figure}[htbp]
+			\centering	
+ 			\includegraphics[scale=0.8]{assets/Anscombe-quartet.png}
+			\caption{Примери за проблем при използване на свързаност на Пиърсън}
+			\label{figure:anscombe-quartet}
+		\end{figure}
+		
+				В система с голям обем данни, вероятността за създаване на подобни проблемни ситуации е много малка. Поради това и сравнително високата ефективност на алгоритъма, той е избран за метрика за сходимост в системата. Имплементацията взима под предвид факта, че може да се наложи неговата замяна. Това прави решението ни лесно за промяна и оставя възможността за набиране на допълнителна информация върху проблема.
 		
 		Запазването на предложения е лесно, благодарение на общия модел на системата.
