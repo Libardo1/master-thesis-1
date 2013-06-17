@@ -8,8 +8,8 @@ beginfig(1);
     topToBottom(70)(R, D);
     Component.S("Server")(C, R, P, D);
     drawObject(S);
-    link(composition)(D.w -- C.s);
-    link(composition)(D.n -- R.s);
-    link(composition)(D.e -- P.s);
+    link(association)(pathManhattanX(D.w, C.s));
+    link(association)(D.n -- R.s);
+    link(association)(rpathManhattanX(D.e, P.s));
 endfig;
 end

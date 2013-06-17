@@ -24,7 +24,7 @@ beginfig(1);
     
     link(composition)(pathManhattanY(C.s, A.w));
     link(composition)(I.s -- A.n);
-    link(composition)(R.s -- A.ne);
+    link(composition)(pathManhattanX(R.s, A.ne));
     link(composition)(A.e -- AR.w);
     link(composition)(AR.s -- U.n);
 endfig;
